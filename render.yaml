@@ -1,10 +1,14 @@
+databases:
+  - name: n8n-db
+    plan: free
+    region: oregon
+
 services:
   - type: web
     name: n8n-dt-problems-telegram
     plan: free
     region: oregon
 
-    # Executa a imagem oficial do n8n (não usa seu Dockerfile)
     runtime: image
     image:
       url: docker.io/n8nio/n8n:latest
@@ -13,7 +17,7 @@ services:
     autoDeploy: true
 
     envVars:
-      # Porta/host/HTTPS - fundamentais no Render
+      # Porta/host/HTTPS - exigências do Render + n8n
       - key: N8N_PORT
         value: "10000"
       - key: PORT
@@ -24,27 +28,49 @@ services:
         value: n8n-dt-problems-telegram.onrender.com
       - key: WEBHOOK_URL
         value: https://n8n-dt-problems-telegram.onrender.com/
-      # URL que a UI do editor usa para se montar e gerar links corretos
       - key: N8N_EDITOR_BASE_URL
         value: https://n8n-dt-problems-telegram.onrender.com/
 
-      # CHAVE DE CRIPTO OBRIGATÓRIA (sem isso o n8n pode morrer na inicialização)
+      # Chave de criptografia (obrigatória)
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
 
-      # Cookies seguros atrás de proxy/https podem exigir ajuste.
-      # Se tiver problema de login, mantenha 'false' (o Render faz o TLS).
+      # Cookies seguros atrás de proxy TLS – deixe false no Render
       - key: N8N_SECURE_COOKIE
         value: "false"
 
-      # Execução no próprio processo (evita modo fila/worker no plano free)
+      # Processo único (free tier)
       - key: EXECUTIONS_PROCESS
         value: own
 
-      # Proteção básica (Basic Auth)
+      # Credenciais de acesso básico
       - key: N8N_BASIC_AUTH_ACTIVE
         value: "true"
       - key: N8N_BASIC_AUTH_USER
         value: admin
       - key: N8N_BASIC_AUTH_PASSWORD
         generateValue: true
+
+      # ---- Banco Postgres (recomendado pelo Render p/ n8n) ----
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromDatabase:
+          name: n8n-db
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        fromDatabase:
+          name: n8n-db
+          property: port
+      - key: DB_POSTGRESDB_DATABASE
+        fromDatabase:
+          name: n8n-db
+          property: database
+      - key: DB_POSTGRESDB_USER
+        fromDatabase:
+          name: n8n-db
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromDatabase:
+          name: n8n-db
+          property: password
