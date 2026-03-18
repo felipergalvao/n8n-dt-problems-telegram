@@ -26,4 +26,3 @@ services:
       - key: N8N_BASIC_AUTH_PASSWORD
         generateValue: true
     healthCheckPath: /
-    autoDeploy: true
