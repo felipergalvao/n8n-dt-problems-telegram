@@ -4,39 +4,44 @@ services:
     plan: free
     region: oregon
 
-    # Use a imagem oficial do n8n (sem Dockerfile próprio)
+    # Executa a imagem oficial do n8n (não usa seu Dockerfile)
     runtime: image
     image:
       url: docker.io/n8nio/n8n:latest
 
-    # Health check simples
     healthCheckPath: /
-
-    # (opcional) auto deploy a cada push no main
     autoDeploy: true
 
-    # Variáveis essenciais para o n8n rodar em Render (HTTPS/host/porta)
     envVars:
-      # Deixe o n8n saber que está atrás de HTTPS e qual é o host público
+      # Porta/host/HTTPS - fundamentais no Render
+      - key: N8N_PORT
+        value: "10000"
+      - key: PORT
+        value: "10000"
       - key: N8N_PROTOCOL
         value: https
       - key: N8N_HOST
         value: n8n-dt-problems-telegram.onrender.com
       - key: WEBHOOK_URL
         value: https://n8n-dt-problems-telegram.onrender.com/
+      # URL que a UI do editor usa para se montar e gerar links corretos
+      - key: N8N_EDITOR_BASE_URL
+        value: https://n8n-dt-problems-telegram.onrender.com/
 
-      # Porta: Render espera 10000; faça o n8n escutar nela
-      - key: N8N_PORT
-        value: "10000"
-      # PORT (convencional em PaaS) – ajuda algumas imagens a respeitar o binding
-      - key: PORT
-        value: "10000"
+      # CHAVE DE CRIPTO OBRIGATÓRIA (sem isso o n8n pode morrer na inicialização)
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true
 
-      # Execução “own” evita modo fila/worker no plano free
+      # Cookies seguros atrás de proxy/https podem exigir ajuste.
+      # Se tiver problema de login, mantenha 'false' (o Render faz o TLS).
+      - key: N8N_SECURE_COOKIE
+        value: "false"
+
+      # Execução no próprio processo (evita modo fila/worker no plano free)
       - key: EXECUTIONS_PROCESS
         value: own
 
-      # Proteja a instância
+      # Proteção básica (Basic Auth)
       - key: N8N_BASIC_AUTH_ACTIVE
         value: "true"
       - key: N8N_BASIC_AUTH_USER
