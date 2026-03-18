@@ -3,14 +3,21 @@ services:
     name: n8n-dt-problems-telegram
     plan: free
     region: oregon
+
+    # Use a imagem oficial do n8n (sem Dockerfile próprio)
     runtime: image
     image:
       url: docker.io/n8nio/n8n:latest
+
+    # Health check simples
     healthCheckPath: /
+
+    # (opcional) auto deploy a cada push no main
     autoDeploy: true
 
+    # Variáveis essenciais para o n8n rodar em Render (HTTPS/host/porta)
     envVars:
-      # Render expõe o serviço via HTTPS. Informe ao n8n a URL pública.
+      # Deixe o n8n saber que está atrás de HTTPS e qual é o host público
       - key: N8N_PROTOCOL
         value: https
       - key: N8N_HOST
@@ -18,18 +25,21 @@ services:
       - key: WEBHOOK_URL
         value: https://n8n-dt-problems-telegram.onrender.com/
 
-      # Muito importante: casar a porta do n8n com a porta esperada pelo Render (10000).
+      # Porta: Render espera 10000; faça o n8n escutar nela
       - key: N8N_PORT
         value: "10000"
+      # PORT (convencional em PaaS) – ajuda algumas imagens a respeitar o binding
+      - key: PORT
+        value: "10000"
 
-      # Proteção básica
+      # Execução “own” evita modo fila/worker no plano free
+      - key: EXECUTIONS_PROCESS
+        value: own
+
+      # Proteja a instância
       - key: N8N_BASIC_AUTH_ACTIVE
         value: "true"
       - key: N8N_BASIC_AUTH_USER
         value: admin
       - key: N8N_BASIC_AUTH_PASSWORD
         generateValue: true
-
-      # Execução em processo próprio (evita problemas de queue/worker no free)
-      - key: EXECUTIONS_PROCESS
-        value: own
