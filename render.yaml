@@ -10,13 +10,11 @@ services:
     autoDeploy: true
 
     envVars:
-      # ===== Banco =====
       - key: DB_TYPE
         value: sqlite
       - key: N8N_USER_FOLDER
         value: /home/node/.n8n
 
-      # ===== Porta / URL =====
       - key: N8N_PORT
         value: "10000"
       - key: PORT
@@ -30,7 +28,6 @@ services:
       - key: WEBHOOK_URL
         value: https://n8n-dt-problems-telegram-clean.onrender.com/
 
-      # ===== Segurança =====
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
       - key: N8N_BASIC_AUTH_ACTIVE
@@ -42,11 +39,8 @@ services:
       - key: N8N_SECURE_COOKIE
         value: "false"
 
-      # ===== Execução =====
       - key: EXECUTIONS_PROCESS
         value: own
-
-      # ===== Debug =====
       - key: N8N_LOG_LEVEL
         value: debug
       - key: N8N_LOG_FORMAT
